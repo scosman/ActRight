@@ -288,9 +288,8 @@ Exports:
 ```ts
 export interface TestFile { path: string; source: ts.SourceFile; }
 
-export function createProject(cwd: string): ts.Program;
-// Uses the project's own tsconfig.json when present; falls back to a permissive in-memory compilerOptions.
-// The project is scoped to the files Playwright considers tests (from playwright.config.ts testDir/testMatch).
+export function getTestName(testCall: ts.CallExpression): string | null;
+// Extracts the test name (first string argument) from a test() call expression.
 
 export function readTestFiles(cwd: string, opts?: { include?: string[] }): TestFile[];
 // Resolves Playwright's testDir/testMatch from playwright.config.ts via a tiny JS-level require (not a full Playwright import).
