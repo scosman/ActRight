@@ -12,7 +12,7 @@ status: complete
 
 **What act owns**
 - The docstring convention for describing tests in English (`@act` tag, freeform markdown body).
-- The agent skills that author (`/act:new`), heal (`/act:heal`), set up (`/act:setup`), and later discover (`/act:discover`, v1+) tests.
+- The agent skills that author (`/act new`), heal (`/act heal`), set up (`/act setup`), and later discover (`/act discover`, v1+) tests.
 - Authoring/heal-time orchestration: driving a browser via Playwright MCP, generating and editing Playwright Test code, interacting with the user.
 
 **What act does NOT own — delegated to Playwright**
@@ -28,15 +28,15 @@ status: complete
 
 Any time v1 is tempted to reinvent a Playwright concern, the answer is back away and let Playwright do it.
 
-**Note on `/act:setup`.** `/act:setup` is involved in getting several of the items above into a working state on a new project — Playwright installed, browsers installed, Playwright MCP registered with the agent, `baseURL` / `webServer` sensibly configured, etc. This is *setting up* Playwright, not owning it: act delegates to Playwright's own installer and config, introduces no act-specific conventions on top, and leaves any existing Playwright install/config alone. See §5.2.
+**Note on `/act setup`.** `/act setup` is involved in getting several of the items above into a working state on a new project — Playwright installed, browsers installed, Playwright MCP registered with the agent, `baseURL` / `webServer` sensibly configured, etc. This is *setting up* Playwright, not owning it: act delegates to Playwright's own installer and config, introduces no act-specific conventions on top, and leaves any existing Playwright install/config alone. See §5.2.
 
 ## 2. Scope
 
 ### 2.1 In v1
 
-- `/act:new` — interactive authoring single test or small set of related tests
-- `/act:heal` — run + triage + repair + report.
-- `/act:setup` — one-time setup (delegates Playwright install to Playwright; wires up Playwright MCP and an example act test).
+- `/act new` — interactive authoring single test or small set of related tests
+- `/act heal` — run + triage + repair + report.
+- `/act setup` — one-time setup (delegates Playwright install to Playwright; wires up Playwright MCP and an example act test).
 - Docstring convention (§3).
 - Bundled helper scripts (§5.7) — TS-Compiler-API-based introspection for fixtures, act-managed tests, docstring parsing. Replaces any need for an act MCP.
 - Claude Code as the supported coding agent.
@@ -47,7 +47,7 @@ Any time v1 is tempted to reinvent a Playwright concern, the answer is back away
 
 The v1 design must not block these:
 
-- `/act:discover` — cold-start skill that reads a codebase and drafts an initial test suite.
+- `/act discover` — cold-start skill that reads a codebase and drafts an initial test suite.
 - CI-triggered heal — heal runs locally in v1, but nothing in the heal design assumes a human is present. In CI, Playwright MCP and agent interaction run non-interactively; the heal pipeline should accommodate that without a rewrite.
 - Machine-readable heal output — v1 emits the heal report as a chat message; if we later need machine readable, can be done with re-running act tests and comparing to results before heal, and injecting results. Not part of V1 
 - Other coding agents (Cursor, Codex, OpenCode, …). Installer/skill placement should abstract around agent identity, not hard-code Claude.
@@ -129,7 +129,7 @@ The docstring can be written by human or agent, but the agent never writes or mo
 
 Discovery has two layers; act owns only the inner one.
 
-**Which files are Playwright tests? — Playwright owns this.** Test files are whatever Playwright finds via its own `testDir` / `testMatch`. Act does not prescribe or override. `/act:setup` delegates Playwright scaffolding to `npm init playwright@latest`, so the project ends up with whatever `testDir` / `testMatch` Playwright's own initializer sets; if the project already has a Playwright config, act leaves it alone.
+**Which files are Playwright tests? — Playwright owns this.** Test files are whatever Playwright finds via its own `testDir` / `testMatch`. Act does not prescribe or override. `/act setup` delegates Playwright scaffolding to `npm init playwright@latest`, so the project ends up with whatever `testDir` / `testMatch` Playwright's own initializer sets; if the project already has a Playwright config, act leaves it alone.
 
 **Which of those tests are act-managed? — act owns this.** The signal is the `/* @act` marker on a `test()` call. Skills scan only within the files Playwright has already claimed as tests, and then use the marker to distinguish act-managed tests from hand-written Playwright tests. The bundled helper script `list-act-tests.ts` (§5.7) does this walk via the TypeScript Compiler API and returns per-test metadata (file, test name, docstring text, line range). Skills use that script whenever they need the list.
 
@@ -142,7 +142,7 @@ All skills are agent skills.
 Getting act into a new project is a two-step process, explicitly separated:
 
 1. **Install act into the project** (§5.1) — a one-time, project-level install of the act skills. Done via a shell one-liner (git clone) from the project root. Not a skill (can't be, until act is installed).
-2. **Set up the project** (§5.2, `/act:setup`) — a per-project skill that, once act is installed, wires up Playwright + Playwright MCP + an example test for the current repo.
+2. **Set up the project** (§5.2, `/act setup`) — a per-project skill that, once act is installed, wires up Playwright + Playwright MCP + an example test for the current repo.
 
 ### 5.1 Installing act (one-time, project level)
 
@@ -155,15 +155,15 @@ git clone --single-branch --depth 1 https://github.com/scosman/ActRight.git .cla
 
 Under the main claude code example, we'll inlcude a section for other popular tools, explainng you can swap the directory for different targets Claude global (~/.claude/skills), Claude project local (`.claude/skills`), cursor global/local, windsurf, etc.
 
-After this runs, the act skills (`/act:setup`, `/act:new`, `/act:heal`) are available to the agent when working in this project. Updating act in the project is a `git pull` in that directory. Uninstalling is deleting it.
+After this runs, the act skills (`/act setup`, `/act new`, `/act heal`) are available to the agent when working in this project. Updating act in the project is a `git pull` in that directory. Uninstalling is deleting it.
 
 - Not a skill: this has to be a shell command because skills can't install themselves.
 - Not a published npm package in v1: direct git clone keeps distribution trivial for early adopters. A real package (`npm i` or equivalent, published skills registry) is deferred.
 - Gitignore / commit decisions are the project's call, not act's. Projects already have their own convention for `.claude/` (commit it to share skills with the team, or ignore it so each developer installs their own). Act does not prescribe either way and does not ship a `.gitignore` entry.
 
-### 5.2 `/act:setup` — per-project bootstrap
+### 5.2 `/act setup` — per-project bootstrap
 
-**Purpose**: once act is installed (§5.1), take a project from "nothing act-specific here" to "I can author a test." `/act:setup` owns only the act-side glue and otherwise delegates to Playwright.
+**Purpose**: once act is installed (§5.1), take a project from "nothing act-specific here" to "I can author a test." `/act setup` owns only the act-side glue and otherwise delegates to Playwright.
 
 **Flow**
 1. Detect: `package.json`, existing `@playwright/test` install, existing `playwright.config.ts` (and whether it already has `use.baseURL` / `webServer` set), existing agent MCP config, and `package.json` scripts that look like a dev server (`dev`, `start`, `preview`, …).
@@ -182,18 +182,18 @@ After this runs, the act skills (`/act:setup`, `/act:new`, `/act:heal`) are avai
      - **`use.baseURL`** — same as `url` by default.
      - **`timeout`** — Playwright's default is usually fine; surface it so the user can bump for slow boots.
    - Write `webServer` (with `command` and `url`) and `use.baseURL` into `playwright.config.ts`. Default `reuseExistingServer: false` — always start a fresh server for each test run; don't assume one is already up. If the port is in use when tests run, the user gets a clear Playwright error; they can flip `reuseExistingServer` themselves if they prefer to reuse a local dev server for faster iteration.
-   - Only skippable by the user as an explicit opt-out ("I'll wire up `webServer` myself later"). `/act:setup` records the skip and offers it again on re-run. Default path does not let the user drift past this step by accident.
+   - Only skippable by the user as an explicit opt-out ("I'll wire up `webServer` myself later"). `/act setup` records the skip and offers it again on re-run. Default path does not let the user drift past this step by accident.
 7. **Scaffold a real sanity test against the app (interactive; only if step 6 completed).** One more `.spec.ts` with an `@act` docstring for "the app loads" — navigates to `/`, asserts the page has a title or a visible landmark, no auth required. Run it with Playwright managing the dev server via `webServer`. On green, the full stack is verified end-to-end. On failure, surface the error — most likely the dev-server command or baseURL is wrong, and the user edits and retries interactively.
-8. **Scaffold core fixtures (interactive; only if step 7 passed).** Most apps have a small set of reusable setup states that downstream tests depend on: create account, log in, create organization/project, seed some dummy data, etc. Without these, every test re-implements auth/setup and diverges. `/act:setup` gets the user a head start on them. Flow:
+8. **Scaffold core fixtures (interactive; only if step 7 passed).** Most apps have a small set of reusable setup states that downstream tests depend on: create account, log in, create organization/project, seed some dummy data, etc. Without these, every test re-implements auth/setup and diverges. `/act setup` gets the user a head start on them. Flow:
    - Ask the user whether their app has such reusable setup state, and if so, to name the ones they want (free text, or a checklist of common ones: *sign up*, *log in*, *create project*, *seed data*). User can skip entirely.
    - For each named fixture:
      - Agent reads the relevant parts of the codebase (auth routes, signup forms, API endpoints, seed scripts if any) to understand how the state is actually produced in this app. Uses Playwright MCP to explore the UI path when needed (e.g. finding the signup form's fields).
      - Agent writes the fixture as a standard **Playwright Test fixture** (`test.extend({...})`) in the project's fixtures file (creating the file if absent; convention from §6). Fixtures compose naturally — `logged_in` depends on `signed_up`, etc.
      - Agent writes **one sanity `@act` test per fixture** that exercises the fixture and makes a simple assertion (e.g. `logged_in` → navigate to a logged-in-only page, assert it rendered). Same docstring convention as any other act test (§3).
-     - Runs the sanity test. On green, the fixture is confirmed working. On red, iterates with the user — same loop as `/act:new` (§5.3).
-   - If the user skips or partially completes, `/act:setup` records what was done and what's still pending; a re-run picks up from there.
-   - Non-goal: `/act:setup` is not trying to discover every reusable state in the app — that's `/act:discover` (v1+). It only seeds the few the user knows they need up front.
-9. **Print "next steps"**: how to run tests, how to invoke `/act:new`, which sanity tests passed, and which fixtures were scaffolded.
+     - Runs the sanity test. On green, the fixture is confirmed working. On red, iterates with the user — same loop as `/act new` (§5.3).
+   - If the user skips or partially completes, `/act setup` records what was done and what's still pending; a re-run picks up from there.
+   - Non-goal: `/act setup` is not trying to discover every reusable state in the app — that's `/act discover` (v1+). It only seeds the few the user knows they need up front.
+9. **Print "next steps"**: how to run tests, how to invoke `/act new`, which sanity tests passed, and which fixtures were scaffolded.
 
 **Idempotent**: safe to re-run. Detects what already exists (Playwright install, MCP registration, example tests, `webServer`/`baseURL` config, already-scaffolded fixtures and their sanity tests) and skips; never overwrites an existing Playwright config, example tests, or fixtures. Re-running after a skipped step offers to complete it.
 
@@ -203,12 +203,12 @@ After this runs, the act skills (`/act:setup`, `/act:new`, `/act:heal`) are avai
 - Does not touch unrelated config (lint, prettier, tsconfig).
 - Does not reimplement Playwright's installer — if Playwright isn't installed, act runs Playwright's own installer.
 
-### 5.3 `/act:new` — interactive authoring
+### 5.3 `/act new` — interactive authoring
 
 **Purpose**: take a new test from blank-slate to "committed, runnable, green".
 
 **Flow**
-1. User invokes `/act:new`, optionally with a seed description.
+1. User invokes `/act new`, optionally with a seed description.
 2. Skill asks clarifying questions: what screen/flow, what outcome, any preconditions. Reads the project's fixture files directly from disk to surface existing fixtures for reuse.
 3. Skill drafts the `@act` docstring. Shows it to the user; iterates until approved.
 4. Skill launches a **headed** browser via Playwright MCP so the user can watch. Navigates the app, performs the steps the docstring describes, and at each step identifies the locator it would encode (preferring `getByRole`, `getByLabel`, `getByText`).
@@ -223,7 +223,7 @@ After this runs, the act skills (`/act:setup`, `/act:new`, `/act:heal`) are avai
 - **Fixture named in docstring doesn't exist**: skill asks to create it, pick an existing one, or drop the reference.
 - **Multiple Tests** the user may use `act:new` to generate a set of tests around a feature. If so, add a starting phase to browse feature code and suggest test set. Iterate until the set is approved, then using planning mode to perform steps 1-7. Ask if user wants it to be interactive, or autonomous when doing more than 1 test. If autonomous - browser isn't headless, and it works through all tests before reporing back to user.
 
-### 5.4 `/act:heal` — run, triage, repair, report
+### 5.4 `/act heal` — run, triage, repair, report
 
 **Purpose**: re-green a suite that fails because the UI drifted.
 
@@ -290,11 +290,11 @@ Would you like to commit the healed test?
 
 Code changes land in the working tree (not auto-committed). Per-entry evidence (diff, trace link, error excerpt) is inline. Ask if the user wants the agent to commit.
 
-### 5.6 `/act:discover` (designed-for; not in v1)
+### 5.6 `/act discover` (designed-for; not in v1)
 
 Designed-for so we don't block it:
 - Reads the codebase; proposes a set of tests.
-- Output is markdown drafts the user approves, then `/act:new` is invoked per test.
+- Output is markdown drafts the user approves, then `/act new` is invoked per test.
 - Relies on the same docstring convention — discovery writes `@act` docstrings.
 
 ### 5.7 Helper scripts bundled with skills
@@ -318,6 +318,80 @@ Agent skills can ship helper scripts alongside their markdown. When a skill need
 - `list-fixtures.ts` — TS Compiler API walk of the project's fixtures file(s); returns JSON of fixture names, types, docstrings.
 - `list-act-tests.ts` — enumerate `*.spec.ts` files containing `/* @act` docstrings; return per-test metadata (file, test name, docstring text, line range).
 - `get-act-doc.ts <file> <test-name>` — extract a specific test's `@act` docstring parsed into its markdown sections.
+
+### 5.8 Skill organization — single skill with router
+
+Act ships as **one skill** named `act`. Invocation is `/act <mode>` — `/act new`, `/act setup`, `/act heal`, `/act discover` (v1+). `SKILL.md` reads the first token of the argument and dispatches to a mode-specific reference file. Modes are not separate skills and do not use Claude Code's plugin-namespaced `plugin:command` convention.
+
+**Layout**
+
+```
+act/
+├── SKILL.md                 # Router: dispatches on first arg (new|setup|heal|...)
+├── references/
+│   ├── new.md               # Loaded for /act new
+│   ├── setup.md             # Loaded for /act setup
+│   ├── heal.md              # Loaded for /act heal
+│   ├── discover.md          # Loaded for /act discover (v1+)
+│   ├── subagents.md         # Shared: manager/subagent pattern (§5.9)
+│   ├── subagent_explore_code.md    # Subagent prompt (§5.9)
+│   ├── subagent_explore_app.md     # Subagent prompt (§5.9)
+│   ├── subagent_code_task.md       # Subagent prompt (§5.9)
+│   ├── docstring.md         # Shared: §3 conventions
+│   └── fixtures.md          # Shared: §6 conventions
+└── scripts/                 # §5.7
+    ├── list-fixtures.ts
+    ├── list-act-tests.ts
+    └── get-act-doc.ts
+```
+
+**Why this shape**
+
+- **Shared content is natural.** Docstring rules (§3), fixture introspection (§6), helper-script invocations (§5.7), and setup-time conventions are cross-mode. Sibling reference files load from any mode without duplication or a plugin-root indirection.
+- **Minimal load cost.** `SKILL.md` stays small — a router plus a list of modes. Mode-specific instructions load only when the mode is invoked.
+- **Single distribution unit.** One git clone (§5.1) delivers every mode. No plugin manifest, no per-command registration, no packaging step.
+
+**Router contract**
+
+- `SKILL.md` reads the first whitespace-delimited token of the skill argument. Supported tokens in v1: `new`, `setup`, `heal`. Designed-for: `discover`.
+- Unknown or missing token → the router lists valid modes and exits.
+- Each mode's reference file is self-contained: purpose, flow, edge cases, and which scripts to invoke. §5.2–5.6 of this spec are the source content for those reference files.
+- Shared reference files (`docstring.md`, `fixtures.md`) are loaded by mode references on demand — not auto-loaded by the router — so unused content stays out of context.
+
+**Alternative considered: plugin-namespaced commands (`/act:new`, `/act:setup`, …).** Claude Code's plugin system supports `/namespace:command` by making each command a separate skill under a plugin directory and sharing helpers via `${CLAUDE_PLUGIN_ROOT}`. Rejected for v1: more files, a plugin manifest to maintain, and shared content reached through an env-var indirection when sibling references are simpler. Revisit if act grows many modes or needs per-command permission scoping.
+
+### 5.9 Manager / subagent pattern
+
+The main skill context is a **manager**. It plans, tracks state, talks to the user, and delegates token-heavy work to fresh subagents. This is a core architectural principle for v1, not an implementation detail.
+
+**Why this matters for act specifically.** Exploring an app through Playwright MCP — DOM snapshots, accessibility trees, trial-and-error navigation, reading source files to understand a feature — easily consumes tens of thousands of tokens per test. If every `/act new` authoring run or every `/act heal` failure triage happened in a single context, the manager would run out of room long before the work was done. Delegating exploration to fresh subagents keeps the manager's context focused on plan state, user interaction, and human-approval gates.
+
+**Inspired by `/spec`.** Same shape: `SKILL.md` and mode references (`new.md`, `heal.md`, `setup.md`) give strong guidance to act as a manager rather than doing work inline. A shared `subagents.md` explains the spawn pattern once; each subagent type has a dedicated prompt reference (`subagent_*.md`) that the manager passes verbatim when spawning.
+
+**v1 subagent types** (exact contracts, prompts, and tool allowlists designed during architecture)
+
+- **explore_code** — read the app's source to understand how a feature works (auth routes, signup form fields, API endpoints, seed paths). No browser. Input: a focused question from the manager plus any starting paths. Output: a concise, structured summary the manager can hand to the next step.
+- **explore_app** — drive the app via Playwright MCP against a concrete goal set by the manager (e.g. "find the click/fill sequence that matches this `@act` docstring" or "reproduce this failure and determine whether it's UI drift or a real bug"). Input: the goal, the docstring, any hints. Output: an ordered action sequence with chosen locators, plus a verdict when applicable (drift / real bug / ambiguous). Headed vs. headless is a manager decision.
+- **code_task** — write or rewrite a Playwright `test()` body from the findings of the explore phases. No browser, no codebase spelunking beyond what the manager supplies. Input: the docstring, the action sequence, the fixture list. Output: the test body (or a file-level diff).
+
+**Manager's job across modes**
+
+- `/act new`: optional `explore_code` → `explore_app` → `code_task` → run test → iterate (loop runs in-manager).
+- `/act heal` (per failure): gather failure context → `explore_app` (verify intent, classify drift vs. bug) → if drift, `code_task` → re-run test → report.
+- `/act setup`: `explore_code` when scaffolding fixtures (reading the app's signup/login paths); no `explore_app` unless sanity tests need it.
+- Independent subagents run in parallel when possible — one per test in multi-test `/act new`, one per failure in `/act heal`.
+
+**What the manager never delegates**
+
+- User interaction — clarifying questions, approvals, docstring edits (§3.4), final heal report (§5.5).
+- Human-approval gates (§3.4, §5.4). A subagent may *propose* a docstring edit; only the manager presents it and writes it.
+- Decisions that require synthesizing across subagent outputs (e.g. deciding to iterate again, abort, or escalate to the user).
+
+**Manager discipline**
+
+- Pass subagents only what they need — the relevant docstring, the specific question, the file paths — never the full manager context or conversation history.
+- Summarize each subagent's result back to the user before moving on; don't silently chain results.
+- When a subagent returns ambiguous or incomplete findings, re-prompt with a narrower question rather than accepting vague output.
 
 ## 6. Fixtures
 
@@ -367,14 +441,14 @@ Exit codes are Playwright's:
 - `1` — one or more tests failed.
 - `2`+ — Playwright's tool errors.
 
-Skill-reported tool failures (e.g. `/act:heal` couldn't reach Playwright MCP) are surfaced in the skill's chat output, not via a process exit code — skills don't own exit codes.
+Skill-reported tool failures (e.g. `/act heal` couldn't reach Playwright MCP) are surfaced in the skill's chat output, not via a process exit code — skills don't own exit codes.
 
 ## 9. Kiln Verification
 
 v1 ships verified against **Kiln (SvelteKit)** as the reference target. The verification is:
-- `/act:setup` succeeds against Kiln.
-- At least one real Kiln test authored via `/act:new` and committed.
-- `/act:heal` successfully heals at least one simulated UI drift on Kiln.
+- `/act setup` succeeds against Kiln.
+- At least one real Kiln test authored via `/act new` and committed.
+- `/act heal` successfully heals at least one simulated UI drift on Kiln.
 
 Other frameworks (Next, Vite, Nuxt, Remix, Astro, non-JS backends behind a dev server) are expected to work because nothing act does depends on framework specifics — only on "a URL serves an app" and "Playwright can drive a browser at it." They are not a release gate for v1.
 
@@ -382,31 +456,31 @@ Other frameworks (Next, Vite, Nuxt, Remix, Astro, non-JS backends behind a dev s
 
 | Situation | Behavior |
 |---|---|
-| Test body fails immediately after `/act:new` writes it | `/act:new` iterates: diagnose, rewrite body, or ask user to clarify docstring. Does not silently declare success. |
-| Dev server not running during `/act:new` | Detect, prompt to start, or auto-start via Playwright's `webServer` config if defined. |
+| Test body fails immediately after `/act new` writes it | `/act new` iterates: diagnose, rewrite body, or ask user to clarify docstring. Does not silently declare success. |
+| Dev server not running during `/act new` | Detect, prompt to start, or auto-start via Playwright's `webServer` config if defined. |
 | Fixture named in docstring doesn't exist | Skill asks the user to create, substitute, or drop. Does not proceed with a nonexistent reference. |
-| `@act` docstring present but no `test()` below it | Treated as malformed. Skill asks the user to write the test (via `/act:new`) or delete the dangling docstring. |
+| `@act` docstring present but no `test()` below it | Treated as malformed. Skill asks the user to write the test (via `/act new`) or delete the dangling docstring. |
 | Hand-edited test body between heal runs | Not a heal concern. Heal only acts on failing tests; a passing hand-tuned body is left alone. If the hand-tuned body is the one that's failing, heal triages and rewrites it like any other failure (§5.4). |
 | Heal runs while an authoring session is in progress on the same file | v1: simple serialization — one skill at a time per file. |
 | Playwright retry greens a flake | Reported as flaky in the heal report; exit code unchanged (0). |
 | Heal encounters ambiguous or unhealable failure | Interactive prompt before final report. User triages each. |
 | User interrupts mid-heal | Partial progress preserved (already-rewritten tests remain); no rollback. Skill can resume on next invocation. |
-| `/act:setup` run twice | Idempotent: detects what already exists (Playwright install, config, MCP registration, example test) and skips. Does not overwrite an existing Playwright config or the example test. |
+| `/act setup` run twice | Idempotent: detects what already exists (Playwright install, config, MCP registration, example test) and skips. Does not overwrite an existing Playwright config or the example test. |
 | Multiple `@act` docstrings separated by blank lines from their `test()` calls | Malformed. Skill reports which ones are orphaned. Heal does not act on them. |
-| Markdown-less docstring (just `/* @act\n*/`) | Skill treats as "author wants an act-managed test but hasn't written intent yet." `/act:new` can fill it in; heal leaves it alone. |
-| Coding agent ≠ Claude | v1 only installs for Claude. Other agents: skills will probably work (they're just markdown); MCP registration is agent-specific; `/act:setup` refuses non-Claude agents in v1 with a clear message. |
+| Markdown-less docstring (just `/* @act\n*/`) | Skill treats as "author wants an act-managed test but hasn't written intent yet." `/act new` can fill it in; heal leaves it alone. |
+| Coding agent ≠ Claude | v1 only installs for Claude. Other agents: skills will probably work (they're just markdown); MCP registration is agent-specific; `/act setup` refuses non-Claude agents in v1 with a clear message. |
 
 ## 11. Scope Summary
 
 **In v1**
-- Skills: `/act:new`, `/act:heal`, `/act:setup`
+- Skills: `/act new`, `/act heal`, `/act setup`
 - Docstring convention (`/* @act … */` above `test()`)
 - Bundled helper scripts for project introspection (§5.7)
 - Claude Code as the supported agent
 - Kiln (SvelteKit) as verified target
 
 **Designed-for, deferred**
-- `/act:discover`
+- `/act discover`
 - CI-triggered heal
 - Structured (machine-readable) heal output
 - Other coding agents (Cursor, Codex, OpenCode, …)
