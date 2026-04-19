@@ -1,0 +1,25 @@
+{
+  "name": "act_right",
+  "private": true,
+  "description": "AI-powered UI test workflow built on Playwright Test",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint --no-error-on-unmatched-pattern 'scripts/**/*.ts' 'tests/**/*.ts'",
+    "format": "prettier --no-error-on-unmatched-pattern --write 'scripts/**/*.ts' 'tests/**/*.ts' '*.json' '*.mjs' '*.ts'",
+    "format:check": "prettier --no-error-on-unmatched-pattern --check 'scripts/**/*.ts' 'tests/**/*.ts' '*.json' '*.mjs' '*.ts'"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.3",
+    "@eslint/js": "^9.25.1",
+    "eslint": "^9.25.1",
+    "typescript-eslint": "^8.31.1",
+    "prettier": "^3.5.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9"
+  }
+}

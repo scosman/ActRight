@@ -1,2 +1,6 @@
 .specs_skill_state/
 reviews/
+node_modules/
+dist/
+test-results/
+.vitest/
