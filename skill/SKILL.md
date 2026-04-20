@@ -2,7 +2,7 @@
 name: act
 description: >
   ActRight — agent skills for authoring, healing, and setting up Playwright
-  tests. Trigger on /act <mode> where mode is one of: new, setup, heal.
+  tests. Trigger on /act <mode> where mode is one of: new, setup, heal, discover.
 ---
 
 # /act — Router
@@ -16,6 +16,7 @@ Parse the first whitespace-delimited token of the skill argument. That token is 
 | `new`   | `references/new.md`   | Author a new test interactively  |
 | `setup` | `references/setup.md` | One-time project bootstrap       |
 | `heal`  | `references/heal.md`  | Run, triage, repair, report      |
+| `discover` | `references/discover.md` | Cold-start: enumerate pages, author tests in parallel |
 
 If the mode token is present and matches one of the above:
 
@@ -24,7 +25,7 @@ If the mode token is present and matches one of the above:
 
 If the mode token is missing or does not match any of the above, respond with:
 
-> Valid modes: `new`, `setup`, `heal`. Usage: `/act <mode> [description]`
+> Valid modes: `new`, `setup`, `heal`, `discover`. Usage: `/act <mode> [description]`
 
 Then stop. Do not guess a mode.
 
