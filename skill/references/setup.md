@@ -38,6 +38,7 @@ Read the project to understand what already exists:
   - What `testDir` is set to (default: `tests`).
 - **`.mcp.json`** — check if it exists and whether it already contains a Playwright MCP entry.
 - **`package.json` scripts** — look for entries named `dev`, `start`, `preview`, or similar that look like a dev server command.
+- **`test:e2e` script** — check if `package.json` already has a `test:e2e` script, or any script whose command already invokes `playwright test`.
 
 Report what you found to the user before proceeding.
 
@@ -64,7 +65,24 @@ Otherwise, prepare the `npm init playwright@latest` command with detected argume
 
 If the command fails, surface the full stderr to the user and stop. Do not retry automatically.
 
-### Step 4: Install and register Playwright MCP
+### Step 4: Add `test:e2e` script to `package.json`
+
+If `package.json` already has a `test:e2e` script whose command is `playwright test`, skip silently.
+
+If `package.json` has a `test:e2e` script with a **different** command, or any other script whose command already invokes `playwright test`:
+- Report what exists (script name and command).
+- Ask the user whether to replace or leave it as-is.
+- Do NOT overwrite without confirmation.
+
+Otherwise, add the following entry to the `scripts` object in `package.json`:
+
+```json
+"test:e2e": "playwright test"
+```
+
+No `npx` prefix — npm/yarn/pnpm scripts resolve locally installed binaries automatically.
+
+### Step 5: Install and register Playwright MCP
 
 Check `.mcp.json` for an existing Playwright MCP entry. If present, skip.
 
@@ -75,7 +93,7 @@ Otherwise:
 
 Show the user the `.mcp.json` changes before writing.
 
-### Step 5: Scaffold install-verification test
+### Step 6: Scaffold install-verification test
 
 Check if a file named `act_sanity.spec.ts` already exists in the project's `testDir`. If it does, skip.
 
@@ -86,11 +104,11 @@ Otherwise:
 3. On green: report success — the act + Playwright + MCP stack works.
 4. On red: surface the error. Most likely cause is Playwright not installed correctly or browsers not downloaded. Help the user debug. Do not proceed until this test passes.
 
-### Step 6: Configure webServer and baseURL
+### Step 7: Configure webServer and baseURL
 
-If `playwright.config.ts` already has both `webServer` and `use.baseURL` set, tell the user and skip to Step 7.
+If `playwright.config.ts` already has both `webServer` and `use.baseURL` set, tell the user and skip to Step 8.
 
-If the user explicitly opts out ("I'll wire up `webServer` myself later"), record the skip and proceed to Step 7. Offer to complete this step on any re-run.
+If the user explicitly opts out ("I'll wire up `webServer` myself later"), record the skip and proceed to Step 8. Offer to complete this step on any re-run.
 
 Otherwise, walk the user through configuring both:
 
@@ -119,9 +137,9 @@ Present the full `webServer` block and `use.baseURL` value to the user. After co
 
 **Never overwrite existing `webServer` or `baseURL` config.** If they are already set, skip entirely.
 
-### Step 7: Scaffold an "app loads" sanity test
+### Step 8: Scaffold an "app loads" sanity test
 
-Only proceed if Step 6 completed (webServer is configured).
+Only proceed if Step 7 completed (webServer is configured).
 
 1. Draft a minimal `@act` test that:
    - Navigates to `/`.
@@ -136,13 +154,13 @@ Only proceed if Step 6 completed (webServer is configured).
    - On green: the full stack is verified end-to-end.
    - On red: surface the error. Most likely the dev-server command or baseURL is wrong. Help the user edit `playwright.config.ts` and retry interactively.
 
-### Step 8: Scaffold core fixtures (interactive)
+### Step 9: Scaffold core fixtures (interactive)
 
-Only proceed if Step 7 passed.
+Only proceed if Step 8 passed.
 
 Ask the user: "Does your app have reusable setup states that tests will need? Common examples: sign up, log in, create project, seed data. Name the ones you want to scaffold now, or skip."
 
-If the user skips, proceed to Step 9.
+If the user skips, proceed to Step 10.
 
 Before scaffolding, list existing fixtures by running `npx tsx --cwd "$SKILL_DIR" "$SKILL_DIR/scripts/list-fixtures.ts" --cwd "$PROJECT_DIR"`. If a user-named fixture already exists in the output, skip it and tell the user it is already scaffolded.
 
@@ -162,7 +180,7 @@ For each named fixture that does not already exist:
 
 If the user partially completes (stops midway), record what was done and what is pending. A re-run of `/act setup` picks up from where it left off.
 
-### Step 9: Print "next steps"
+### Step 10: Print "next steps"
 
 Summarize to the user:
 
@@ -171,13 +189,13 @@ Summarize to the user:
 
 **Sanity tests passed:**
 - act_sanity.spec.ts (install verification) ✓
-- act_app_loads.spec.ts (app loads) ✓  [if step 7 ran]
+- act_app_loads.spec.ts (app loads) ✓  [if step 8 ran]
 
 **Fixtures scaffolded:**
-- [list each fixture name and its sanity test status]  [if step 8 ran]
+- [list each fixture name and its sanity test status]  [if step 9 ran]
 
 **Next steps:**
-- Run all tests: `npx playwright test`
+- Run all tests: `npm run test:e2e` (or `npx playwright test`)
 - Author a new test: `/act new <description>`
 - Heal failing tests after UI changes: `/act heal`
 ```
@@ -186,7 +204,7 @@ Summarize to the user:
 
 This mode uses one subagent type:
 
-- **`explore_code`** — spawned in Step 8 when scaffolding fixtures, to understand how the app implements each fixture's precondition (auth routes, signup forms, API endpoints, etc.). Read `references/subagent_explore_code.md`, fill `{{GOAL}}` and `{{CONTEXT.*}}`, and spawn via the Agent tool.
+- **`explore_code`** — spawned in Step 9 when scaffolding fixtures, to understand how the app implements each fixture's precondition (auth routes, signup forms, API endpoints, etc.). Read `references/subagent_explore_code.md`, fill `{{GOAL}}` and `{{CONTEXT.*}}`, and spawn via the Agent tool.
 
 If fixture scaffolding involves browser interaction (sanity test red, need to find correct sequence), also spawn:
 
@@ -203,17 +221,17 @@ See `references/subagents.md` for the spawn mechanic and manager discipline rule
 | Coding agent is not Claude | Refuse politely: "ActRight v1 supports Claude Code only." Stop. |
 | Playwright already installed | Skip Step 3. Report what version is installed. |
 | `playwright.config.ts` already exists | Do NOT overwrite. Read it for detection; skip any config steps that are already satisfied. |
-| `webServer` + `baseURL` already set | Skip Step 6 entirely. |
+| `webServer` + `baseURL` already set | Skip Step 7 entirely. |
 | Example test files already exist | Skip scaffolding those files. Do not overwrite. |
 | `npm init playwright@latest` fails | Surface full stderr. Stop. User fixes and re-runs. |
-| Sanity test fails (Step 5) | Surface error. Help debug. Do not proceed until green. |
-| App-loads test fails (Step 7) | Surface error. Most likely webServer command or baseURL is wrong. Help user edit and retry. |
-| Fixture sanity test fails (Step 8) | Iterate using the `/act new` loop: diagnose, adjust, re-run. |
-| User skips webServer config | Record the skip. Offer again on re-run. Steps 7-8 are skipped. |
+| Sanity test fails (Step 6) | Surface error. Help debug. Do not proceed until green. |
+| App-loads test fails (Step 8) | Surface error. Most likely webServer command or baseURL is wrong. Help user edit and retry. |
+| Fixture sanity test fails (Step 9) | Iterate using the `/act new` loop: diagnose, adjust, re-run. |
+| User skips webServer config | Record the skip. Offer again on re-run. Steps 8-9 are skipped. |
 | `/act setup` run a second time | Idempotent. Detect what exists and skip. Never overwrite existing config, tests, or fixtures. |
 | `.mcp.json` doesn't exist | Create it with just the Playwright MCP entry. |
 | No dev/start/preview script in package.json | Ask the user for the dev server command. If none, surface clearly — webServer cannot be configured without a command. |
 
 ## Reporting
 
-At the end, print the Step 9 summary. This is the final output — do not ask further questions after the summary unless the user continues the conversation.
+At the end, print the Step 10 summary. This is the final output — do not ask further questions after the summary unless the user continues the conversation.

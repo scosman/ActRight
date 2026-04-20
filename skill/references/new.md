@@ -126,12 +126,12 @@ This runs only the specific test. Playwright starts the dev server via `webServe
 2. **Locator wrong** — the app has the right behavior but the locator is stale or incorrect. Re-spawn `explore_app` (Step 5) with a narrower goal: "The locator `<locator>` failed with error `<error>`. Find the correct locator for <element description>."
 
 3. **Fixture missing** — the test references a fixture that does not exist. Ask the user:
-   - Create the fixture now (switch to the fixture scaffolding loop from `/act setup` Step 8).
+   - Create the fixture now (switch to the fixture scaffolding loop from `/act setup` Step 9).
    - Substitute an existing fixture.
    - Drop the fixture reference from the docstring.
    Do NOT proceed with a nonexistent fixture.
 
-4. **Dev server not running** — Playwright reports it cannot reach the app. Surface: "Is your dev server running?" If `webServer` is configured in `playwright.config.ts`, Playwright should start it automatically — check the webServer error. If `webServer` is not configured, offer to configure it (same as `/act setup` Step 6).
+4. **Dev server not running** — Playwright reports it cannot reach the app. Surface: "Is your dev server running?" If `webServer` is configured in `playwright.config.ts`, Playwright should start it automatically — check the webServer error. If `webServer` is not configured, offer to configure it (same as `/act setup` Step 7).
 
 5. **Other failure** — surface the full Playwright error to the user. Ask for guidance.
 
