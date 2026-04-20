@@ -48,8 +48,8 @@ The `/* @act ... */` docstring is the source of truth. The test body below it is
 | Skill Commands | Purpose |
 |---|---|
 | <code>/act&nbsp;setup</code> | One-time project bootstrap. Installs Playwright, registers MCP, configures `webServer`/`baseURL`, scaffolds example tests. See [references/setup.md](skill/references/setup.md). |
-| <code>/act&nbsp;new</code>` | Interactive test authoring. Drafts the docstring with you, explores the app via Playwright MCP, generates and verifies the test body. See [references/new.md](skill/references/new.md). |
-| <code>/act&nbsp;heal</code>` | Run, triage, repair, report. Classifies failures as UI drift vs. app bug, rewrites broken test bodies, re-runs to confirm. See [references/heal.md](skill/references/heal.md). |
+| <code>/act&nbsp;new</code> | Interactive test authoring. Drafts the docstring with you, explores the app via Playwright MCP, generates and verifies the test body. See [references/new.md](skill/references/new.md). |
+| <code>/act&nbsp;heal</code> | Run, triage, repair, report. Classifies failures as UI drift vs. app bug, rewrites broken test bodies, re-runs to confirm. See [references/heal.md](skill/references/heal.md). |
 
 ## Install
 
