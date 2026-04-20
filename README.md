@@ -45,41 +45,38 @@ The `/* @act ... */` docstring is the source of truth. The test body below it is
 
 ## Skills Reference
 
-| Skill | Purpose |
+| Skill Commands | Purpose |
 |---|---|
-| `/act setup` | One-time project bootstrap. Installs Playwright, registers MCP, configures `webServer`/`baseURL`, scaffolds example tests. See [references/setup.md](skill/references/setup.md). |
-| `/act new` | Interactive test authoring. Drafts the docstring with you, explores the app via Playwright MCP, generates and verifies the test body. See [references/new.md](skill/references/new.md). |
-| `/act heal` | Run, triage, repair, report. Classifies failures as UI drift vs. app bug, rewrites broken test bodies, re-runs to confirm. See [references/heal.md](skill/references/heal.md). |
+| <code>/act&nbsp;setup</code> | One-time project bootstrap. Installs Playwright, registers MCP, configures `webServer`/`baseURL`, scaffolds example tests. See [references/setup.md](skill/references/setup.md). |
+| <code>/act&nbsp;new</code>` | Interactive test authoring. Drafts the docstring with you, explores the app via Playwright MCP, generates and verifies the test body. See [references/new.md](skill/references/new.md). |
+| <code>/act&nbsp;heal</code>` | Run, triage, repair, report. Classifies failures as UI drift vs. app bug, rewrites broken test bodies, re-runs to confirm. See [references/heal.md](skill/references/heal.md). |
 
 ## Install
 
 ```sh
-# Clone into your project's skills directory
-git clone --depth 1 https://github.com/scosman/act_right.git .claude/skills/act_right.git
+# Clone this project (not inside your project)
+git clone --depth 1 https://github.com/scosman/ActRight.git
 
-# Symlink the skill subdirectory
-ln -s act_right.git/skill .claude/skills/actright
+# Symlink the skill subdirectory for Claude to discover
+ln -s ActRight/skill ~/.claude/skills/actright
 ```
-
-The skill lives in the repo's `skill/` subdirectory; the rest is dev tooling.
 
 After installing, `/act setup`, `/act new`, and `/act heal` are available inside Claude Code.
 
-**Update later:** `git -C .claude/skills/act_right.git pull` -- the symlink picks it up automatically.
+**Update later:** `git pull` from ActRight directory -- the symlink picks it up updates automatically.
 
 <details>
-<summary><strong>Other agents & install targets</strong></summary>
+<summary><strong>Cursor, VSCode, OpenCode and Others</strong></summary>
 
-ActRight is an [agent skill](https://agentskills.io) — it loads on demand based on the task, rather than sitting in context like a rule. That means it drops into any agent that speaks the skill standard:
+ActRight works with any coding agent which supports [agent skill](https://agentskills.io).
 
 | Target | Install |
 |---|---|
-| Claude Code (global) | Clone to `~/.claude/skills/act_right.git` and symlink `~/.claude/skills/actright` → `act_right.git/skill`. |
-| Claude Code (team-shared) | Use the main install above and commit `.claude/skills/` to your repo. |
+| Claude Code (one project only) | Instead of installing into `~/.claude`, install into `PROJECT_ROOT/.claude/skills/`. |
+| Cursor | link to `~/.cursor/skills/` for global install or `PROJECT_ROOT/.cursor/skills/` for project-specific install. |
 | VS Code (GitHub Copilot) | Reads `.claude/skills/` natively -- the main install works as-is. Also searches `.github/skills/` and `.agents/skills/`. |
 | OpenCode | Reads `.claude/skills/` natively -- the main install works as-is. Also searches `.opencode/skills/`. |
-
-**Rules-based agents (Cursor, Windsurf, etc.)** don't support skills natively -- rules are always-on; skills load conditionally. A rule adapter isn't shipped yet.
+| Others | Check their Skills documentation for install path. |
 
 </details>
 
@@ -88,7 +85,7 @@ ActRight is an [agent skill](https://agentskills.io) — it loads on demand base
 ### Prerequisites
 
 - Node 20+
-- A project with a running dev server (any framework -- SvelteKit, Next.js, Vite, Go, etc.)
+- A project with a running dev server (any framework/language -- SvelteKit, Next.js, Go, Python, etc.)
 
 ### Step A: Bootstrap
 
