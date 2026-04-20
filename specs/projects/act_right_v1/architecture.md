@@ -139,7 +139,9 @@ You are a focused subagent working on one concrete piece of an ActRight workflow
 The manager will fill in these fields before handing you this prompt:
 - GOAL: <what the manager wants you to produce>
 - CONTEXT: <paths, docstrings, hints — only what you need>
-- ALLOWED TOOLS: <Read, Grep, Glob / Playwright MCP / Edit — mode-dependent>
+
+## Allowed tools
+<fixed per subagent type — see §3>
 
 ## What you must produce
 <structured output contract — see §3 for each subagent type>
@@ -154,7 +156,7 @@ The manager will fill in these fields before handing you this prompt:
 - Rewrite any @act docstring (manager-only; §5.4).
 ```
 
-The manager fills `GOAL`, `CONTEXT`, `ALLOWED TOOLS` by string substitution (or simple templating: `{{GOAL}}` placeholders, replaced before calling `Agent`). No subagent ever reads the manager's conversation.
+The manager fills `GOAL` and `CONTEXT` by string substitution (simple templating: `{{GOAL}}` placeholders, replaced before calling `Agent`). Tool allowlists are fixed per subagent type (see §3) and are not variable placeholders. No subagent ever reads the manager's conversation.
 
 ## 3. Subagent Contracts
 
@@ -273,7 +275,7 @@ The manager runs the test after `code_task` returns. `code_task` does not run Pl
 
 ### 3.4 Subagent invocation contract
 
-The manager always uses the `Agent(subagent_type="general-purpose", prompt=<templated file contents>)` pattern (Claude Code's built-in subagent spawn). Three fixed templates live in `references/subagent_*.md`. The manager fills `{{GOAL}}`, `{{CONTEXT.*}}`, and `{{ALLOWED_TOOLS}}` via simple string replace. No tool calls parameters vary beyond the prompt contents — all three subagent types share the same spawn mechanic.
+The manager always uses the `Agent(subagent_type="general-purpose", prompt=<templated file contents>)` pattern (Claude Code's built-in subagent spawn). Three fixed templates live in `references/subagent_*.md`. The manager fills `{{GOAL}}` and `{{CONTEXT.*}}` via simple string replace. Tool allowlists are fixed per subagent type (hardcoded in each prompt file) and are not variable placeholders. No tool calls parameters vary beyond the prompt contents — all three subagent types share the same spawn mechanic.
 
 Subagents run in parallel when tasks are independent (functional spec §5.9: "one per test in multi-test `/act new`, one per failure in `/act heal`"). The manager emits multiple `Agent` calls in a single message to achieve this.
 

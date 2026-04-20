@@ -1,0 +1,63 @@
+# Manager / Subagent Pattern
+
+This file describes the manager/subagent architecture that every act mode uses. Load this file at the start of any mode execution. Source: functional spec SS5.9.
+
+## Why Subagents
+
+Exploring an app through Playwright MCP — DOM snapshots, accessibility trees, trial-and-error navigation — easily consumes tens of thousands of tokens per test. If every `/act new` authoring run or `/act heal` triage happened in a single context, the manager would run out of room long before the work was done. Delegating token-heavy exploration to fresh subagents keeps the manager's context focused on plan state, user interaction, and approval gates.
+
+## You Are the Manager
+
+When executing a mode reference (`new.md`, `heal.md`, `setup.md`), you are the **manager**. You plan, track state, talk to the user, and delegate token-heavy work to subagents. You do NOT do heavy exploration or code-writing inline.
+
+## Subagent Types
+
+Three subagent types exist in v1. Each has a dedicated prompt file under `references/`. The full prompt — including input/output contracts, tool allowlists, and behavioral rules — lives in that file.
+
+### `explore_code`
+**Prompt**: `references/subagent_explore_code.md`
+
+Reads the user's source code to answer a focused question. No browser, no edits. Use when you need to understand how a feature works (auth routes, signup form fields, API endpoints) before driving the app or writing a test.
+
+### `explore_app`
+**Prompt**: `references/subagent_explore_app.md`
+
+Drives the app via Playwright MCP. Two modes: (a) **author** — find the click/fill sequence matching a docstring's intent, or (b) **triage** — reproduce a failing test and classify it as drift / real bug / ambiguous. Cannot read source code; if it needs code context, you (the manager) include excerpts in `CONTEXT`.
+
+### `code_task`
+**Prompt**: `references/subagent_code_task.md`
+
+Writes or rewrites exactly one `test()` call body from a docstring + action sequence. No browser, no codebase exploration. You supply everything it needs. It outputs the edit and a self-check.
+
+## How to Spawn a Subagent
+
+Use the Agent tool with `subagent_type="general-purpose"`. The prompt is the **verbatim contents** of the corresponding `references/subagent_<type>.md` file, with these placeholders filled by string-replace before passing:
+
+- `{{GOAL}}` — what you want the subagent to produce.
+- `{{CONTEXT.*}}` — each `CONTEXT` field relevant to that subagent type (e.g. `{{CONTEXT.starting_paths}}`, `{{CONTEXT.base_url}}`). Replace each placeholder with the concrete value.
+
+Tool allowlists are fixed per subagent type (hardcoded in each prompt file's "Allowed tools" section) and are not variable placeholders.
+
+Read the subagent prompt file, perform the string replacements, and pass the result as the `prompt` argument to the Agent tool.
+
+## Parallel Spawn
+
+Spawn subagents in parallel when tasks are independent:
+
+- **`/act new` with multiple tests**: one `explore_app` + `code_task` chain per test.
+- **`/act heal` with multiple failures**: one `explore_app` (triage) per failure.
+
+Emit multiple Agent tool calls in a single message to achieve parallelism.
+
+## What the Manager NEVER Delegates
+
+- **User interaction** — clarifying questions, approvals, confirmations.
+- **Docstring edits** — a subagent may propose a docstring change; only the manager presents it to the user and writes it after approval (SS3.4, SS5.4).
+- **Approval gates** — deciding whether to proceed, abort, or escalate.
+- **Cross-subagent synthesis** — decisions that require combining outputs from multiple subagents.
+
+## Manager Discipline
+
+- **Pass only what's needed.** Give each subagent the relevant docstring, the specific question, the file paths — never the full manager context or conversation history.
+- **Summarize results.** After a subagent returns, summarize its findings back to the user before moving on. Do not silently chain results.
+- **Re-prompt narrowly.** When a subagent returns ambiguous or incomplete findings, re-spawn with a narrower question rather than accepting vague output.
