@@ -22,16 +22,38 @@ ActRight is deliberately thin: it is **agent skills plus conventions on top of P
 From your project root:
 
 ```sh
-git clone --single-branch --depth 1 https://github.com/scosman/act_right.git .claude/skills/actright
+# Clone the repo to an adjacent location
+git clone --depth 1 https://github.com/scosman/act_right.git .claude/skills/act_right.git
+
+# Link the skill subdir to where Claude Code looks for skills
+ln -s act_right.git/skill .claude/skills/actright
 ```
 
-This clones the act skills into the directory Claude Code scans for project-level skills. After cloning, `/act setup`, `/act new`, and `/act heal` are available inside Claude Code.
+The skill is packaged inside the repo's `skill/` subdirectory -- the rest of the repo (tests, dev tooling, docs) doesn't need to live inside the agent's skills directory.
+
+**Updating act later:**
+
+```sh
+git -C .claude/skills/act_right.git pull
+```
+
+The symlink picks up the update automatically.
+
+**Windows or environments without symlinks:** copy the directory instead:
+
+```sh
+cp -r .claude/skills/act_right.git/skill .claude/skills/actright
+```
+
+Note: copying means you need to re-copy after each `git pull`.
+
+After installing, `/act setup`, `/act new`, and `/act heal` are available inside Claude Code.
 
 **Other install targets:**
 
-- **Claude Code global:** clone into `~/.claude/skills/actright` to make skills available across all projects.
-- **Project-local (team-shared):** clone into `.claude/skills/actright` (as above) and commit the directory so every team member gets the skills.
-- **Cursor, Windsurf, and other agents:** community-supported -- drop the clone into whichever directory your agent scans for skills or rules.
+- **Claude Code global:** clone into `~/.claude/skills/act_right.git` and symlink `~/.claude/skills/actright` to `act_right.git/skill` to make skills available across all projects.
+- **Project-local (team-shared):** install as above and commit the directory so every team member gets the skills.
+- **Cursor, Windsurf, and other agents:** community-supported -- drop the `skill/` directory contents into whichever directory your agent scans for skills or rules.
 
 ### Step B: Bootstrap your project
 
@@ -111,15 +133,15 @@ The body below the docstring is generated code -- the agent writes it, and `/act
 
 **Suggested sections:** Goals, Fixtures, Hints, Assertions. Use what's relevant; none are required. The docstring content is freeform markdown.
 
-For full rules, see [references/docstring.md](references/docstring.md) and [functional spec section 3](specs/projects/act_right_v1/functional_spec.md#3-docstring-convention-the-central-design).
+For full rules, see [references/docstring.md](skill/references/docstring.md) and [functional spec section 3](specs/projects/act_right_v1/functional_spec.md#3-docstring-convention-the-central-design).
 
 ## Skills Reference
 
 | Skill | Purpose |
 |---|---|
-| `/act setup` | One-time project bootstrap. Installs Playwright, registers Playwright MCP, configures `webServer`/`baseURL`, scaffolds example tests and fixtures. See [references/setup.md](references/setup.md). |
-| `/act new` | Interactive test authoring. Drafts the docstring with you, explores the app via Playwright MCP, generates and verifies the test body. See [references/new.md](references/new.md). |
-| `/act heal` | Run, triage, repair, report. Runs the suite, classifies failures as drift vs. app bug, rewrites broken test bodies, re-runs to confirm, and prints a heal report. See [references/heal.md](references/heal.md). |
+| `/act setup` | One-time project bootstrap. Installs Playwright, registers Playwright MCP, configures `webServer`/`baseURL`, scaffolds example tests and fixtures. See [references/setup.md](skill/references/setup.md). |
+| `/act new` | Interactive test authoring. Drafts the docstring with you, explores the app via Playwright MCP, generates and verifies the test body. See [references/new.md](skill/references/new.md). |
+| `/act heal` | Run, triage, repair, report. Runs the suite, classifies failures as drift vs. app bug, rewrites broken test bodies, re-runs to confirm, and prints a heal report. See [references/heal.md](skill/references/heal.md). |
 
 ## Helper Scripts
 
@@ -127,9 +149,9 @@ Bundled TypeScript scripts that skills use for project introspection. You don't 
 
 | Script | Description |
 |---|---|
-| `scripts/list-fixtures.ts` | Enumerates Playwright fixtures via the TS Compiler API. Returns fixture names, types, docstrings, and dependencies as JSON. |
-| `scripts/list-act-tests.ts` | Finds all `@act`-managed tests across the project. Returns per-test metadata (file, name, docstring, line range) plus orphan detection. |
-| `scripts/get-act-doc.ts` | Extracts a single test's `@act` docstring by file path and test name. Returns parsed sections as JSON. |
+| `skill/scripts/list-fixtures.ts` | Enumerates Playwright fixtures via the TS Compiler API. Returns fixture names, types, docstrings, and dependencies as JSON. |
+| `skill/scripts/list-act-tests.ts` | Finds all `@act`-managed tests across the project. Returns per-test metadata (file, name, docstring, line range) plus orphan detection. |
+| `skill/scripts/get-act-doc.ts` | Extracts a single test's `@act` docstring by file path and test name. Returns parsed sections as JSON. |
 
 For script contracts and invocation details, see [architecture section 4](specs/projects/act_right_v1/architecture.md#4-helper-scripts).
 
@@ -142,7 +164,7 @@ Check that Playwright MCP is registered in `.mcp.json` (or `.claude/mcp.json`). 
 Check the `webServer.command` in your `playwright.config.ts`. Make sure the command actually starts your app. If you prefer to run the dev server manually, set `reuseExistingServer: true` in the `webServer` block.
 
 **Fixture named in docstring doesn't exist.**
-`/act new` will ask you to pick from existing fixtures or drop the reference. Run `npx tsx scripts/list-fixtures.ts --cwd .` to see what's available.
+`/act new` will ask you to pick from existing fixtures or drop the reference. Run `npx tsx skill/scripts/list-fixtures.ts --cwd .` to see what's available.
 
 **Test body fails after `/act new` wrote it.**
 The skill iterates automatically -- it diagnoses and rewrites. If it gives up, verify the dev server state, check that the docstring's intent matches the current app, and retry.
@@ -175,7 +197,7 @@ npm test
 npm run lint
 ```
 
-Tests use vitest and cover the helper scripts in `scripts/`. Formatting uses prettier (`npm run format:check` to verify, `npm run format` to fix).
+Tests use vitest and cover the helper scripts in `skill/scripts/`. Formatting uses prettier (`npm run format:check` to verify, `npm run format` to fix).
 
 ## License
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import path from 'path';
-import { main } from '../../scripts/get-act-doc.js';
+import { main } from '../../skill/scripts/get-act-doc.js';
 
 const fixturesDir = path.resolve(__dirname, 'fixtures');
 

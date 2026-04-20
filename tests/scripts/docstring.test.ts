@@ -3,8 +3,8 @@ import ts from 'typescript';
 import {
   parseActDocstring,
   findActDocstringForTest,
-} from '../../scripts/lib/docstring.js';
-import { findTestCalls } from '../../scripts/lib/ast.js';
+} from '../../skill/scripts/lib/docstring.js';
+import { findTestCalls } from '../../skill/scripts/lib/ast.js';
 
 function createSource(code: string): ts.SourceFile {
   return ts.createSourceFile('test.ts', code, ts.ScriptTarget.Latest, true);

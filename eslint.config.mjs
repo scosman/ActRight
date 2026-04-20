@@ -11,7 +11,7 @@ export default tseslint.config(
     ],
   },
   {
-    files: ['scripts/**/*.ts', 'tests/**/*.ts'],
+    files: ['skill/scripts/**/*.ts', 'tests/**/*.ts'],
     extends: [eslint.configs.recommended, ...tseslint.configs.recommended],
   },
 );

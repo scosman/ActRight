@@ -10,33 +10,22 @@ The functional spec is the source of truth for behavior. This document does not 
 
 ## 1. Repository Shape
 
-ActRight is a git repository users clone into their project (`.claude/skills/actright/` by default; §5.1). Everything the agent reads at runtime lives in the repo; nothing is built or published.
+ActRight is a git repository. The installable skill is cleanly separated from dev tooling: the `skill/` subdirectory contains everything the agent reads at runtime, while tests, configs, and CI stay at the repo root. Users symlink (or copy) only the `skill/` subdirectory into their project's skills directory (`.claude/skills/actright/`; §5.1). This separation keeps the agent's context free of dev artifacts.
 
 ```
-act_right/                        # the repo root = the skill root
-├── SKILL.md                      # Claude Code skill entry; router
-├── README.md                     # human-facing install + "what is this"
+act_right/                        # repo root — dev-facing
+├── README.md                     # human-facing install + dev instructions
 ├── LICENSE
-├── package.json                  # for helper scripts only — NOT published
-├── tsconfig.json                 # for helper scripts only
-├── references/
-│   ├── new.md                    # /act new
-│   ├── setup.md                  # /act setup
-│   ├── heal.md                   # /act heal
-│   ├── discover.md               # /act discover — v1+ placeholder (not shipped in v1)
-│   ├── docstring.md              # shared: §3 docstring convention
-│   ├── fixtures.md               # shared: §6 fixtures convention
-│   ├── subagents.md              # shared: manager/subagent pattern (§5.9)
-│   ├── subagent_explore_code.md  # verbatim subagent prompt
-│   ├── subagent_explore_app.md   # verbatim subagent prompt
-│   └── subagent_code_task.md     # verbatim subagent prompt
-├── scripts/
-│   ├── list-fixtures.ts          # TS Compiler API: enumerate Playwright fixtures
-│   ├── list-act-tests.ts         # enumerate @act-managed tests
-│   ├── get-act-doc.ts            # extract one @act docstring
-│   └── lib/
-│       ├── ast.ts                # shared TS Compiler API helpers
-│       └── docstring.ts          # parse `/* @act ... */` blocks into sections
+├── package.json                  # dev tooling only — NOT published
+├── tsconfig.json                 # dev tooling only
+├── eslint.config.mjs
+├── vitest.config.ts
+├── .prettierrc
+├── .prettierignore
+├── .gitignore
+├── .github/
+│   └── workflows/
+│       └── ci.yml                # runs scripts' tests + lint
 ├── tests/
 │   └── scripts/
 │       ├── fixtures/             # per-test fixture project dirs (see §7.4)
@@ -44,11 +33,30 @@ act_right/                        # the repo root = the skill root
 │       ├── list-act-tests.test.ts
 │       ├── get-act-doc.test.ts
 │       └── docstring.test.ts
-├── examples/
-│   └── sanity.spec.ts            # copied by /act setup as the install-verification test
-└── .github/
-    └── workflows/
-        └── ci.yml                # runs scripts' tests + lint
+├── specs/                        # planning artifacts
+├── verification/                 # release checklists
+└── skill/                        # THE INSTALLABLE SKILL — this is what the user's agent sees
+    ├── SKILL.md                  # Claude Code skill entry; router
+    ├── references/
+    │   ├── new.md                # /act new
+    │   ├── setup.md              # /act setup
+    │   ├── heal.md               # /act heal
+    │   ├── discover.md           # /act discover — v1+ placeholder (not shipped in v1)
+    │   ├── docstring.md          # shared: §3 docstring convention
+    │   ├── fixtures.md           # shared: §6 fixtures convention
+    │   ├── subagents.md          # shared: manager/subagent pattern (§5.9)
+    │   ├── subagent_explore_code.md  # verbatim subagent prompt
+    │   ├── subagent_explore_app.md   # verbatim subagent prompt
+    │   └── subagent_code_task.md     # verbatim subagent prompt
+    ├── scripts/
+    │   ├── list-fixtures.ts      # TS Compiler API: enumerate Playwright fixtures
+    │   ├── list-act-tests.ts     # enumerate @act-managed tests
+    │   ├── get-act-doc.ts        # extract one @act docstring
+    │   └── lib/
+    │       ├── ast.ts            # shared TS Compiler API helpers
+    │       └── docstring.ts      # parse `/* @act ... */` blocks into sections
+    └── examples/
+        └── sanity.spec.ts        # copied by /act setup as the install-verification test
 ```
 
 **Notes**
@@ -56,7 +64,7 @@ act_right/                        # the repo root = the skill root
 - `package.json` exists solely to declare `devDependencies` (typescript, vitest, @playwright/test as a peer for types, node types) and a few `scripts` entries used by contributors. End users never run `npm install` in this repo — they clone it into their project and the agent invokes the helper scripts via `npx tsx`, which resolves `typescript` from the *user's* project (see §5.2 for the invocation contract).
 - No compilation step for shipped code. Scripts are executed with `tsx` (provided by the user's project or, as a fallback, `npx tsx` which downloads on demand). We do not ship a `dist/`.
 - `.gitignore` ignores `node_modules/`, `test-results/`, `.vitest/`, etc.
-- We publish nothing to npm. Distribution is `git clone` (§5.1 of functional spec).
+- We publish nothing to npm. Distribution is `git clone` + symlink (§5.1 of functional spec).
 
 ## 2. Skill Layout and Router
 

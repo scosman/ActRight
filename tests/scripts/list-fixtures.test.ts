@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import ts from 'typescript';
 import path from 'path';
 import fs from 'fs';
-import { main } from '../../scripts/list-fixtures.js';
-import { findTestCalls, getTestName } from '../../scripts/lib/ast.js';
+import { main } from '../../skill/scripts/list-fixtures.js';
+import { findTestCalls, getTestName } from '../../skill/scripts/lib/ast.js';
 
 const fixturesDir = path.resolve(__dirname, 'fixtures');
 

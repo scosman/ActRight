@@ -7,9 +7,9 @@
   },
   "scripts": {
     "test": "vitest run",
-    "lint": "eslint --no-error-on-unmatched-pattern 'scripts/**/*.ts' 'tests/**/*.ts'",
-    "format": "prettier --no-error-on-unmatched-pattern --write 'scripts/**/*.ts' 'tests/**/*.ts' '*.json' '*.mjs' '*.ts' --ignore-path .prettierignore",
-    "format:check": "prettier --no-error-on-unmatched-pattern --check 'scripts/**/*.ts' 'tests/**/*.ts' '*.json' '*.mjs' '*.ts' --ignore-path .prettierignore"
+    "lint": "eslint --no-error-on-unmatched-pattern 'skill/scripts/**/*.ts' 'tests/**/*.ts'",
+    "format": "prettier --no-error-on-unmatched-pattern --write 'skill/scripts/**/*.ts' 'tests/**/*.ts' '*.json' '*.mjs' '*.ts' --ignore-path .prettierignore",
+    "format:check": "prettier --no-error-on-unmatched-pattern --check 'skill/scripts/**/*.ts' 'tests/**/*.ts' '*.json' '*.mjs' '*.ts' --ignore-path .prettierignore"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",

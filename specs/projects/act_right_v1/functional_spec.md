@@ -146,16 +146,19 @@ Getting act into a new project is a two-step process, explicitly separated:
 
 ### 5.1 Installing act (one-time, project level)
 
-Act's skills live in a git repo. Installing act means cloning that repo into the location the project's agent scans for skills. For Claude Code in v1, that's `.claude/skills/actright` at the project root:
+Act's skills live in a git repo, inside the `skill/` subdirectory. Installing act means cloning the repo and symlinking (or copying) the `skill/` subdirectory into the location the project's agent scans for skills. For Claude Code in v1, that's `.claude/skills/actright` at the project root:
 
 ```sh
 # from the project root
-git clone --single-branch --depth 1 https://github.com/scosman/act_right.git .claude/skills/actright
+git clone --depth 1 https://github.com/scosman/act_right.git .claude/skills/act_right.git
+ln -s act_right.git/skill .claude/skills/actright
 ```
 
-Under the main claude code example, we'll inlcude a section for other popular tools, explainng you can swap the directory for different targets Claude global (~/.claude/skills), Claude project local (`.claude/skills`), cursor global/local, windsurf, etc.
+The skill is packaged inside the repo's `skill/` subdirectory -- the rest of the repo (tests, dev tooling, docs) doesn't need to live inside the agent's skills directory. For environments without symlinks (e.g. Windows), copy instead: `cp -r .claude/skills/act_right.git/skill .claude/skills/actright` (re-copy after each `git pull`).
 
-After this runs, the act skills (`/act setup`, `/act new`, `/act heal`) are available to the agent when working in this project. Updating act in the project is a `git pull` in that directory. Uninstalling is deleting it.
+Under the main Claude Code example, we'll include a section for other popular tools, explaining you can swap the directory for different targets: Claude global (~/.claude/skills), Claude project local (`.claude/skills`), cursor global/local, windsurf, etc.
+
+After this runs, the act skills (`/act setup`, `/act new`, `/act heal`) are available to the agent when working in this project. Updating act in the project is `git -C .claude/skills/act_right.git pull` (the symlink picks up the update automatically). Uninstalling is deleting both the clone and the symlink.
 
 - Not a skill: this has to be a shell command because skills can't install themselves.
 - Not a published npm package in v1: direct git clone keeps distribution trivial for early adopters. A real package (`npm i` or equivalent, published skills registry) is deferred.
