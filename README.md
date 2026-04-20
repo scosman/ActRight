@@ -1,31 +1,36 @@
-# ActRight
-
-**AI writes and heals tests. AI never runs them.**
+```
+ █████╗  ██████╗████████╗    ██████╗ ██╗ ██████╗ ██╗  ██╗████████╗
+██╔══██╗██╔════╝╚══██╔══╝    ██╔══██╗██║██╔════╝ ██║  ██║╚══██╔══╝
+███████║██║        ██║       ██████╔╝██║██║  ███╗███████║   ██║   
+██╔══██║██║        ██║       ██╔══██╗██║██║   ██║██╔══██║   ██║   
+██║  ██║╚██████╗   ██║       ██║  ██║██║╚██████╔╝██║  ██║   ██║   
+╚═╝  ╚═╝ ╚═════╝   ╚═╝       ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝  
+```
 
 ## What is ActRight
+[![CI](https://github.com/scosman/ActRight/actions/workflows/ci.yml/badge.svg)](https://github.com/scosman/ActRight/actions/workflows/ci.yml)
 
-ActRight is an AI-powered UI test workflow built on a simple thesis: the AI should author and repair your tests, but never be in the loop when they run. Existing AI testing tools run an agent on every test execution -- that's slow, expensive, non-deterministic, and unfit for CI. ActRight splits the problem: AI agents write plain-English test descriptions and generate matching Playwright Test code, and separately heal those tests when the UI drifts. Running the suite is pure, fast, deterministic Playwright with no LLM in the loop.
+ActRight is an [agent skill](https://agentskills.io) that will write, heal, and manage UI automation tests using Playwright.
 
-The source of truth for each test is an English description that lives as a docstring on the Playwright `test()` call. The code body of the test is a build artifact: an agent can regenerate or repair it when the UI changes, using the docstring as intent. This makes tests cheap to run on every commit, easy to read and review, and resilient to UI changes that would break traditional selector-based tests.
-
-ActRight is deliberately thin: it is **agent skills plus conventions on top of Playwright Test** -- not a competing test framework, runner, or CLI. Playwright owns running, browsers, fixtures, config, parallelism, and file discovery. ActRight contributes a docstring convention for describing tests in English, and the skills that author, heal, and set up tests inside a coding agent like Claude Code.
+ - **Thesis:** the AI should author and repair your tests, but never be in the loop when they run. Existing AI testing tools run an agent on every test execution -- that's slow, expensive, non-deterministic, and unfit for CI.
+ - **Intent vs Code:** each test's intent is captured in a new Markdown docstring above each test. The code body of the test is a build artifact: an agent can regenerate or repair it when the UI changes, using the docstring as intent. This makes tests cheap to run on every commit, easy to read and review, and easy to heal/repair when UI changes.
+ - **Thin:** Act Right is simply an agent skill and convention for documenting intent. The code it produces is vanilla Playwright automation code. 
+ - **Easy to use:** Just type `/act setup` to your agent, and Act Right wil bootstrap your UI automation tessing process.
 
 ## Quickstart
 
 ### Prerequisites
 
 - Node 20+
-- A project with a running dev server (any framework -- SvelteKit, Next.js, Vite, etc.)
+- A project with a running dev server (any framework/language -- SvelteKit, Next.js, Vite, Go, etc.)
 
 ### Step A: Install act skills
-
-From your project root:
 
 ```sh
 # Clone the repo to an adjacent location
 git clone --depth 1 https://github.com/scosman/act_right.git .claude/skills/act_right.git
 
-# Link the skill subdir to where Claude Code looks for skills
+# From project root, link the skill subdir to where Claude Code looks for skills
 ln -s act_right.git/skill .claude/skills/actright
 ```
 
