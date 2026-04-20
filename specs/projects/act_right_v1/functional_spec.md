@@ -150,7 +150,7 @@ Act's skills live in a git repo. Installing act means cloning that repo into the
 
 ```sh
 # from the project root
-git clone --single-branch --depth 1 https://github.com/scosman/ActRight.git .claude/skills/actright
+git clone --single-branch --depth 1 https://github.com/scosman/act_right.git .claude/skills/actright
 ```
 
 Under the main claude code example, we'll inlcude a section for other popular tools, explainng you can swap the directory for different targets Claude global (~/.claude/skills), Claude project local (`.claude/skills`), cursor global/local, windsurf, etc.
