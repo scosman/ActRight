@@ -6,11 +6,9 @@
 ██║  ██║╚██████╗   ██║       ██║  ██║██║╚██████╔╝██║  ██║   ██║   
 ╚═╝  ╚═╝ ╚═════╝   ╚═╝       ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝  
 ```
-
-## What is ActRight
 [![CI](https://github.com/scosman/ActRight/actions/workflows/ci.yml/badge.svg)](https://github.com/scosman/ActRight/actions/workflows/ci.yml)
 
-ActRight is an [agent skill](https://agentskills.io) that writes, heals, and manages UI automation tests using Playwright.
+### ActRight is an [agent skill](https://agentskills.io) that writes, heals, and manages UI automation tests using Playwright.
 
  - **Thesis:** the AI should author and repair your tests, but never be in the loop when they run. Existing AI testing tools run an agent on every test execution -- that's slow, expensive, non-deterministic, and unfit for CI.
  - **Intent vs Code:** each test's intent is captured in a Markdown docstring above each test. The code body is a build artifact: an agent can regenerate or repair it when the UI changes, using the docstring as intent. This makes tests cheap to run on every commit, easy to read and review, and easy to heal when UI changes.
