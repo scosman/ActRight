@@ -15,7 +15,7 @@
  - **Thin:** Act Right is simply an agent skill and convention for documenting intent. The code it produces is vanilla Playwright automation code.
  - **Easy to use:** Just type `/act setup` to your agent, and Act Right will bootstrap your UI automation testing process.
 
-## Example: Code generated from Intent
+## Example: Intent Docstring Drives AI Code Generation
 
 ```ts
 import { test, expect } from '@playwright/test';
@@ -48,7 +48,7 @@ The `/* @act ... */` docstring is the source of truth. The test body below it is
 | <code>/act&nbsp;setup</code> | One-time project bootstrap. Installs Playwright, registers MCP, configures `webServer`/`baseURL`, scaffolds example tests. See [references/setup.md](skill/references/setup.md). |
 | <code>/act&nbsp;new</code> | Interactive test authoring. Drafts the docstring with you, explores the app via Playwright MCP, generates and verifies the test body. See [references/new.md](skill/references/new.md). |
 | <code>/act&nbsp;heal</code> | Run, triage, repair, report. Classifies failures as UI drift vs. app bug, rewrites broken test bodies, re-runs to confirm. See [references/heal.md](skill/references/heal.md). |
-| <code>/act&nbsp;discover</code>` | Cold-start test generation. Enumerates pages/components, builds a plan, and authors tests in parallel batches. See [references/discover.md](skill/references/discover.md). |
+| <code>/act&nbsp;discover</code> | Cold-start test generation. Enumerates pages/components, builds a plan, and authors tests in parallel batches. See [references/discover.md](skill/references/discover.md). |
 
 ## Install
 
