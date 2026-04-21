@@ -48,6 +48,7 @@ The `/* @act ... */` docstring is the source of truth. The test body below it is
 | <code>/act&nbsp;setup</code> | One-time project bootstrap. Installs Playwright, registers MCP, configures `webServer`/`baseURL`, scaffolds example tests. See [references/setup.md](skill/references/setup.md). |
 | <code>/act&nbsp;new</code> | Interactive test authoring. Drafts the docstring with you, explores the app via Playwright MCP, generates and verifies the test body. See [references/new.md](skill/references/new.md). |
 | <code>/act&nbsp;heal</code> | Run, triage, repair, report. Classifies failures as UI drift vs. app bug, rewrites broken test bodies, re-runs to confirm. See [references/heal.md](skill/references/heal.md). |
+| <code>/act&nbsp;discover</code>` | Cold-start test generation. Enumerates pages/components, builds a plan, and authors tests in parallel batches. See [references/discover.md](skill/references/discover.md). |
 
 ## Install
 
@@ -59,7 +60,7 @@ git clone --depth 1 https://github.com/scosman/ActRight.git
 ln -s $PWD/ActRight/skill ~/.claude/skills/actright
 ```
 
-After installing, `/act setup`, `/act new`, and `/act heal` are available inside Claude Code.
+After installing, `/act setup`, `/act new`, `/act heal`, and `/act discover` are available inside Claude Code.
 
 **Update later:** `git pull` from ActRight directory -- the symlink picks it up updates automatically.
 
@@ -116,6 +117,16 @@ No AI, no LLM, no network calls beyond your app. Same Playwright you already kno
 ```
 
 Runs the suite, triages each failure, and rewrites broken test bodies where the UI has drifted. The docstring (your intent) stays untouched; only generated code changes. You get back a report splitting failures into **UI drift -- healed** vs. **likely app bug -- needs your attention**, so legitimate regressions don't quietly get papered over.
+
+### Step E: Discover and generate tests for your whole app
+
+```
+/act discover [scope]
+```
+
+Enumerates your app's pages and components, builds a grouped plan, and authors tests in parallel. Pass an optional scope (e.g. `auth`, `settings`) to restrict discovery to a subset. Use `--parallel=N` to control concurrency (default 3). Results are incremental: you can abort and resume, or run multiple scoped sessions in parallel.
+
+Local discovery state is stored in `.act_right/` which is automatically added to `.gitignore` on first run.
 
 ## The Docstring Convention
 
