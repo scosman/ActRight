@@ -58,7 +58,7 @@ The `/* @act ... */` docstring is the source of truth. The test body below it is
 git clone --depth 1 https://github.com/scosman/ActRight.git
 
 # Symlink the skill subdirectory for Claude to discover
-ln -s ActRight/skill ~/.claude/skills/actright
+ln -s ./ActRight/skill ~/.claude/skills/actright
 ```
 
 After installing, `/act setup`, `/act new`, and `/act heal` are available inside Claude Code.
